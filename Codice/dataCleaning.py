@@ -134,7 +134,7 @@ df_cleaned = df_with_normalized_tags \
 # Filtraggio finale per ID validi, URL validi e related_videos validi
 df_valid = df_cleaned.filter(
     (col("_id").isNotNull()) &
-    (col("duration").isNotNull())
+    (col("duration").isNotNull()) &
     (col("url_is_valid") == True) &                                      
     (col("related_videos_are_valid") == True)                          
 )
