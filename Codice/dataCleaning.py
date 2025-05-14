@@ -16,9 +16,10 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
-connection_name = "TedX"
+connection_name = "TEDX"
 database_name = "unibg_tedx_2025"
 collection_name = "tedx_data"
+new_collection_name = "tedx_data_clean"
 
 #Lettura dati da MongoDB
 read_mongo_options = {
@@ -123,13 +124,14 @@ df_with_normalized_tags = df_transformed \
     .withColumn("tags_normalized", normalize_tags_udf(col("tags")))
 
 df_cleaned = df_with_normalized_tags \
-    .drop("publishedAt", "publishedAt_ts") \
+    .drop("publishedAt", "publishedAt_ts", "title", "description", "slug", "speakers", "tags") \
     .withColumnRenamed("publishedAt_formatted", "publishedAt") \
     .withColumnRenamed("title_normalized", "title") \
     .withColumnRenamed("description_normalized", "description") \
     .withColumnRenamed("slug_normalized", "slug") \
     .withColumnRenamed("speakers_normalized", "speakers") \
     .withColumnRenamed("tags_normalized", "tags")
+
     
 # Filtraggio finale per ID validi, URL validi e related_videos validi
 df_valid = df_cleaned.filter(
@@ -139,15 +141,18 @@ df_valid = df_cleaned.filter(
     (col("related_videos_are_valid") == True)                          
 )
 
+print(f"Record prima della rimozione dei null: {df_valid.count()}")
 df_final_to_write = df_valid.drop("url_is_valid", "related_videos_are_valid")
+df_final_to_write = df_final_to_write.na.drop("any")
+print(f"Record dopo la rimozione dei null: {df_final_to_write.count()}")
 
 write_mongo_options = {
     "connectionName": connection_name,
     "database": database_name,
-    "collection": collection_name,
+    "collection": new_collection_name,
     "mode": "overwrite", 
     "upsert" : "true",
-    "replaceDocument": "false", 
+    "replaceDocument": "true",
     "ssl": "true",
     "ssl.domain_match": "false"
 }
