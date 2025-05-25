@@ -16,10 +16,9 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
-connection_name = "TEDX"
+connection_name = "TedX"
 database_name = "unibg_tedx_2025"
 collection_name = "tedx_data"
-new_collection_name = "tedx_data_clean"
 
 #Lettura dati da MongoDB
 read_mongo_options = {
@@ -29,6 +28,7 @@ read_mongo_options = {
 }
 
 df = glueContext.create_dynamic_frame.from_options(connection_type="mongodb", connection_options = read_mongo_options).toDF()
+print(f"Record originali: {df.count()}")
 
 # Controllo dei duplicati in _id
 print("Verifica presenza di ID duplicati:")
@@ -39,8 +39,6 @@ print(f"Trovati {duplicates_count} ID duplicati nel dataset")
 if duplicates_count > 0:
     df = df.dropDuplicates(["_id"])
 
-
-
 # Controllo dell'esistenza dei related video 
 df_with_valid_ids_for_reference = df.filter(
     col("_id").isNotNull() & col("_id").cast("string").rlike("^[0-9]+$")
@@ -48,17 +46,8 @@ df_with_valid_ids_for_reference = df.filter(
 valid_ids_list = [row._id for row in df_with_valid_ids_for_reference.select("_id").distinct().collect()]
 broadcast_valid_ids = spark.sparkContext.broadcast(set(valid_ids_list))
 
-
 print(f"Numero totale di record nel dataset: {df.count()}")
 print(f"Numero di ID validi: {len(valid_ids_list)}")
-
-# Funzione per convertire la durata da secondi a formato "Xm Ys"
-def convert_duration(seconds):
-    try:
-        s = int(seconds)
-        return f"{s // 60}m{s % 60}s"
-    except:
-        return None
 
 # Funzione per validare URL
 def is_valid_url_regex(url_string):
@@ -78,7 +67,6 @@ def validate_related_ids_list_udf_func(id_list_to_check):
     return True
 
 # Definizione delle UDF (User Defined Functions)
-convert_duration_udf = udf(convert_duration, StringType())
 is_valid_url_udf = udf(is_valid_url_regex, BooleanType())
 validate_related_ids_udf = udf(validate_related_ids_list_udf_func, BooleanType())
 
@@ -94,7 +82,6 @@ def normalize_text_func(text):
 normalize_text_udf = udf(normalize_text_func, StringType())
 
 df_transformed = df \
-    .withColumn("duration_printable", convert_duration_udf(col("duration"))) \
     .withColumn("publishedAt_ts", to_timestamp(col("publishedAt"))) \
     .withColumn("title_normalized", normalize_text_udf(col("title"))) \
     .withColumn("description_normalized", normalize_text_udf(col("description"))) \
@@ -124,14 +111,13 @@ df_with_normalized_tags = df_transformed \
     .withColumn("tags_normalized", normalize_tags_udf(col("tags")))
 
 df_cleaned = df_with_normalized_tags \
-    .drop("publishedAt", "publishedAt_ts", "title", "description", "slug", "speakers", "tags") \
+    .drop("publishedAt", "publishedAt_ts") \
     .withColumnRenamed("publishedAt_formatted", "publishedAt") \
     .withColumnRenamed("title_normalized", "title") \
     .withColumnRenamed("description_normalized", "description") \
     .withColumnRenamed("slug_normalized", "slug") \
     .withColumnRenamed("speakers_normalized", "speakers") \
     .withColumnRenamed("tags_normalized", "tags")
-
     
 # Filtraggio finale per ID validi, URL validi e related_videos validi
 df_valid = df_cleaned.filter(
@@ -141,18 +127,15 @@ df_valid = df_cleaned.filter(
     (col("related_videos_are_valid") == True)                          
 )
 
-print(f"Record prima della rimozione dei null: {df_valid.count()}")
 df_final_to_write = df_valid.drop("url_is_valid", "related_videos_are_valid")
-df_final_to_write = df_final_to_write.na.drop("any")
-print(f"Record dopo la rimozione dei null: {df_final_to_write.count()}")
+print(f"Record dopo pulizia: {df_final_to_write.count()}")
+print(f"Record scartati: {df.count() - df_final_to_write.count()}")
 
 write_mongo_options = {
-    "connectionName": connection_name,
+   "connectionName": connection_name,
     "database": database_name,
-    "collection": new_collection_name,
-    "mode": "overwrite", 
-    "upsert" : "true",
-    "replaceDocument": "true",
+    "collection": "tedx_data_cleaned",
+    "mode": "overwrite",
     "ssl": "true",
     "ssl.domain_match": "false"
 }
