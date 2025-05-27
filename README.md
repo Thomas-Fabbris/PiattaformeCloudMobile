@@ -64,10 +64,10 @@ LinguaX è strutturata secondo un’architettura moderna cloud-native:
   - Servizi di traduzione, trascrizione e suggerimenti AI
 - 🧠 **MongoDB** opzionale per caching e profili estesi
 
-📌 Di seguito il diagramma dell’architettura (in formato `.drawio`):
+  
+📌 Di seguito il diagramma architetturale:
 
-📎 `Risorse\Architettura.png` incluso nella repository
-
+![Architettura del Sistema](architettura.png)
 
 ## 👨‍💻 Autori
 
