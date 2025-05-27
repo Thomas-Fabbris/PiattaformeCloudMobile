@@ -1,4 +1,5 @@
-# 🌍 TedXlanguage – Duolingo meets TEDx 🎙️📱☁️
+# <img src="Risorse\logo4.1.png" alt="TedXlanguage Logo" width="36"/> LinguaX – Duolingo meets TEDx 🎙️📱☁️
+
 
 ![Last Commit](https://img.shields.io/github/last-commit/Thomas-Fabbris/PiattaformeCloudMobile?style=for-the-badge)
 ![Languages Count](https://img.shields.io/github/languages/count/Thomas-Fabbris/PiattaformeCloudMobile?style=for-the-badge)
@@ -50,6 +51,24 @@ L’obiettivo è proporre un nuovo approccio all’apprendimento linguistico, un
 - 🔐 Login sicuro via Firebase Auth
 
 ---
+
+---
+
+## 🔧 Architettura del Sistema
+
+LinguaX è strutturata secondo un’architettura moderna cloud-native:
+
+- 📱 **Client mobile** sviluppato in Flutter
+- 🔐 **Firebase Authentication** per la gestione sicura degli accessi
+- 🗃️ **Cloud Firestore** per la memorizzazione dei dati utente e delle lezioni
+- ☁️ **Google Cloud / AWS** per:
+  - Hosting e streaming dei contenuti TEDx
+  - Servizi di traduzione, trascrizione e suggerimenti AI
+- 🧠 **MongoDB** opzionale per caching e profili estesi
+
+📌 Di seguito il diagramma dell’architettura (in formato `.drawio`):
+
+📎 `Risorse\Architettura.drawio` incluso nella repository
 
 
 ## 👨‍💻 Autori
