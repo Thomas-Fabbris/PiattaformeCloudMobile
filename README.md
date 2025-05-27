@@ -1,4 +1,4 @@
-# <img src="Risorse\logo4.1.png" alt="TedXlanguage Logo" width="36"/> LinguaX – Duolingo meets TEDx 🎙️📱☁️
+# <img src="Risorse\logo4.1.png" alt="TedXlanguage Logo" width="36"/> TedXlanguage – Duolingo meets TEDx 🎙️📱☁️
 
 
 ![Last Commit](https://img.shields.io/github/last-commit/Thomas-Fabbris/PiattaformeCloudMobile?style=for-the-badge)
