@@ -72,11 +72,11 @@ LinguaX è strutturata secondo un’architettura moderna cloud-native:
 ## 👨‍💻 Autori
 
 **Thomas Fabbris**  
-📧 [thomas.fabbris@studenti.unibg.it](mailto:thomas.fabbris@studenti.unibg.it)  
+📧 [t.fabbris@studenti.unibg.it](mailto:t.fabbris@studenti.unibg.it)  
 🌐 [GitHub – @Thomas-Fabbris](https://github.com/Thomas-Fabbris)
 
 **Lorenzo Umberto Gambirasio**  
-📧 [lorenzo.gambirasio@studenti.unibg.it](mailto:l.gambirasio3@studenti.unibg.it)  
+📧 [l.gambirasio3@studenti.unibg.it](mailto:l.gambirasio3@studenti.unibg.it)  
 🌐 [GitHub – @LorenzoGambirasio](https://github.com/LorenzoGambirasio)
 
 **Alessandro Biscaro**  
