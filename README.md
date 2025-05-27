@@ -52,8 +52,6 @@ L’obiettivo è proporre un nuovo approccio all’apprendimento linguistico, un
 
 ---
 
----
-
 ## 🔧 Architettura del Sistema
 
 LinguaX è strutturata secondo un’architettura moderna cloud-native:
@@ -68,7 +66,7 @@ LinguaX è strutturata secondo un’architettura moderna cloud-native:
 
 📌 Di seguito il diagramma dell’architettura (in formato `.drawio`):
 
-📎 `Risorse\Architettura.drawio` incluso nella repository
+📎 `Risorse\Architettura.png` incluso nella repository
 
 
 ## 👨‍💻 Autori
