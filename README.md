@@ -59,7 +59,7 @@ LinguaX è strutturata secondo un’architettura moderna cloud-native:
 - 📱 **Client mobile** sviluppato in Flutter
 - 🔐 **Firebase Authentication** per la gestione sicura degli accessi
 - 🗃️ **Cloud Firestore** per la memorizzazione dei dati utente e delle lezioni
-- ☁️ **Google Cloud / AWS** per:
+- ☁️ **Amazon AWS** per:
   - Hosting e streaming dei contenuti TEDx
   - Servizi di traduzione, trascrizione e suggerimenti AI
 - 🧠 **MongoDB** opzionale per caching e profili estesi
