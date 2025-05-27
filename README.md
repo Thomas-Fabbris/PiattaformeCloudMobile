@@ -67,7 +67,7 @@ LinguaX è strutturata secondo un’architettura moderna cloud-native:
   
 📌 Di seguito il diagramma architetturale:
 
-![Architettura del Sistema](architettura.png)
+![Architettura del Sistema](Risorse/architettura.png)
 
 ## 👨‍💻 Autori
 
