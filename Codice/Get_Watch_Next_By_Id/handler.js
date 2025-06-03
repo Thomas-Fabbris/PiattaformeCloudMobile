@@ -1,5 +1,5 @@
 const connect_to_db = require('./db');
-const talk = require('./Talk'); // Your Mongoose model for 'Talk'
+const talk = require('./Talk'); 
 
 module.exports.get_watch_next_by_id = async (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false;
@@ -12,7 +12,7 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
         } catch (parseError) {
             console.error('Error parsing event body:', parseError);
             return callback(null, {
-                statusCode: 400, // Bad Request
+                statusCode: 400, 
                 headers: { 'Content-Type': 'text/plain' },
                 body: 'Could not parse request body. Ensure it is valid JSON.'
             });
@@ -22,7 +22,7 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
     if (!body.id) {
         console.log('Missing id in request body.');
         return callback(null, {
-            statusCode: 400, // Bad Request
+            statusCode: 400,
             headers: { 'Content-Type': 'text/plain' },
             body: 'Could not fetch related talks. Missing "id" in request body.'
         });
@@ -40,7 +40,7 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
         if (!mainTalk) {
             console.log(`Main talk with ID '${body.id}' not found.`);
             return callback(null, {
-                statusCode: 404, // Not Found
+                statusCode: 404, 
                 headers: { 'Content-Type': 'text/plain' },
                 body: `Main talk with ID '${body.id}' not found.`
             });
@@ -53,7 +53,6 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
             console.log(`No related video IDs found for talk '${mainTalk.title || body.id}'. Returning empty array for related talks.`);
         } else {
             console.log(`Found related video IDs: ${relatedIds.join(', ')}. Fetching related talks...`);
-            // Use the imported 'talk' (lowercase) model
             relatedTalksDocuments = await talk.find({
                 _id: { $in: relatedIds }
             }).select('-related_video_ids');
@@ -76,7 +75,6 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
         return callback(null, {
             statusCode: err.statusCode || 500,
             headers: { 'Content-Type': 'text/plain' },
-            // Provide a more informative error message if possible
             body: `Could not fetch related talks. Error: ${err.message || 'Internal server error.'}`
         });
     }
