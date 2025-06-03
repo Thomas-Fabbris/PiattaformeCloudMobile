@@ -1,5 +1,5 @@
 const connect_to_db = require('./db');
-const talk = require('./Talk'); 
+const talk = require('./talk'); 
 
 module.exports.get_watch_next_by_id = async (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false;
