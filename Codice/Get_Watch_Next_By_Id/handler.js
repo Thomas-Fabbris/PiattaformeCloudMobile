@@ -1,5 +1,5 @@
 const connect_to_db = require('./db');
-const talk = require('./talk'); 
+const talk = require('./Talk'); 
 
 module.exports.get_watch_next_by_id = async (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false;
@@ -12,7 +12,7 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
         } catch (parseError) {
             console.error('Error parsing event body:', parseError);
             return callback(null, {
-                statusCode: 400, 
+                statusCode: 400,
                 headers: { 'Content-Type': 'text/plain' },
                 body: 'Could not parse request body. Ensure it is valid JSON.'
             });
@@ -28,9 +28,6 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
         });
     }
 
-     body.doc_per_page = body.doc_per_page || 10;
-     body.page = body.page || 1;
-
     try {
         await connect_to_db();
         console.log(`=> Attempting to fetch watch next for talk ID: ${body.id}`);
@@ -40,7 +37,7 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
         if (!mainTalk) {
             console.log(`Main talk with ID '${body.id}' not found.`);
             return callback(null, {
-                statusCode: 404, 
+                statusCode: 404,
                 headers: { 'Content-Type': 'text/plain' },
                 body: `Main talk with ID '${body.id}' not found.`
             });
@@ -66,8 +63,8 @@ module.exports.get_watch_next_by_id = async (event, context, callback) => {
 
         return callback(null, {
             statusCode: 200,
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify(responsePayload)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(responsePayload, null, 2) 
         });
 
     } catch (err) {
