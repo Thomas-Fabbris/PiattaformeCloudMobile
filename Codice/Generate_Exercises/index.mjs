@@ -2,93 +2,117 @@ import { MongoClient } from 'mongodb';
 import { InvokeEndpointCommand, SageMakerRuntimeClient } from "@aws-sdk/client-sagemaker-runtime";
 import * as cheerio from 'cheerio';
 
-// The 'node-fetch' import has been removed. 
-// We will use the native fetch API provided by the Node.js 18.x+ runtime.
+// Viene utilizzata l'API fetch nativa di Node.js.
 
-// Initialize clients outside the handler for reuse across invocations
+// Inizializza i client fuori dall'handler per riutilizzarli tra le invocazioni
 const mongo = new MongoClient(process.env.MONGO_URI);
 const sagemaker = new SageMakerRuntimeClient({ region: "us-east-1" });
 
 /**
- * Fetches the transcript from a given TED talk URL.
- * @param {string} baseUrl - The base URL of the TED talk.
- * @returns {Promise<string>} The extracted transcript text.
+ * Estrae la trascrizione da un dato URL di un talk TED.
+ * @param {string} baseUrl - L'URL di base del talk TED.
+ * @returns {Promise<string>} Il testo della trascrizione estratto.
  */
 async function fetchTranscript(baseUrl) {
-  // Ensure the URL points to the transcript page
+  // Assicura che l'URL punti alla pagina della trascrizione
   const transcriptUrl = baseUrl.endsWith('/') ? `${baseUrl}transcript` : `${baseUrl}/transcript`;
   
-  console.log(`Fetching transcript from: ${transcriptUrl}`);
-  // This now uses the native fetch provided by the Lambda runtime
+  console.log(`Recupero trascrizione da: ${transcriptUrl}`);
+  // Ora utilizza la fetch nativa fornita dal runtime Lambda
   const response = await fetch(transcriptUrl); 
   if (!response.ok) {
-    throw new Error(`Failed to fetch transcript. Status: ${response.status}`);
+    throw new Error(`Recupero trascrizione fallito. Status: ${response.status}`);
   }
   const html = await response.text();
   const $ = cheerio.load(html);
   
   let transcriptText = '';
 
-  // **Primary Method: Parse structured JSON-LD data**
-  // This is more robust than scraping HTML classes, which can change frequently.
+  // Metodo Primario: Analisi dei dati strutturati JSON-LD
   const scriptTag = $('script[type="application/ld+json"]');
   if (scriptTag.length > 0) {
     const jsonData = scriptTag.html();
     if (jsonData) {
       try {
         const data = JSON.parse(jsonData);
-        // The full transcript is available in this structured data.
+        // La trascrizione completa è disponibile in questi dati strutturati.
         if (data && data.transcript) {
            transcriptText = data.transcript;
         }
       } catch (e) {
-        console.error("Failed to parse JSON-LD data.", e);
+        console.error("Analisi dei dati JSON-LD fallita.", e);
       }
     }
   }
 
-  // **Fallback Method: Scrape the visible transcript text**
-  // This is used if the JSON-LD data is not available or fails to parse.
+  // Metodo Secondario (Fallback): Estrazione del testo visibile
   if (!transcriptText) {
-    console.log("JSON-LD transcript not found. Falling back to HTML scraping.");
-    // This selector targets the individual text segments of the transcript.
+    console.log("Trascrizione JSON-LD non trovata. Utilizzo del metodo di scraping HTML.");
+    // Questo selettore punta ai segmenti di testo individuali della trascrizione.
     transcriptText = $('div[role="button"][aria-disabled="false"] > span').map((i, el) => $(el).text()).get().join(' ').replace(/\s\s+/g, ' ').trim();
   }
   
   if (!transcriptText) {
-    throw new Error("Transcript content is empty or could not be found on the page.");
+    throw new Error("Il contenuto della trascrizione è vuoto o non è stato trovato nella pagina.");
   }
   
-  // Return the first 500 characters to stay within SageMaker limits
+  // La trascrizione viene nuovamente troncata per rispettare i limiti del modello SageMaker
   return transcriptText.slice(0, 500);
 }
 
 /**
- * Generates a fill-in-the-blank exercise using a SageMaker NLP model.
- * @param {string} transcript - The transcript text to process.
- * @returns {Promise<{question: string, options: string[]}>} The generated question and answer options.
+ * Genera un esercizio "fill-in-the-blank" usando un modello NLP di SageMaker.
+ * @param {string} transcript - Il testo della trascrizione da elaborare.
+ * @returns {Promise<{question: string, options: string[], answer: string}>} La domanda generata, le opzioni e la risposta corretta.
  */
 async function generateExercise(transcript) {
-  // Create a fill-in-the-blank question by masking the first long word
-  const question = transcript.replace(/\b(\w{5,})\b/, '[MASK]');
+  const match = transcript.match(/\b(\w{5,})\b/);
+  if (!match) {
+    throw new Error("Could not find a suitable word to mask in the transcript.");
+  }
+  
+  const originalWord = match[0];
+  const question = transcript.replace(originalWord, '[MASK]');
 
   const payload = JSON.stringify({ inputs: question });
 
   const command = new InvokeEndpointCommand({
-    EndpointName: 'NLP-Exercise-Generator', // Make sure this endpoint name is correct
+    EndpointName: 'NLP-Exercise-Generator', // Assicurati che il nome dell'endpoint sia corretto
     ContentType: 'application/json',
     Body: Buffer.from(payload)
   });
 
-  console.log("Invoking SageMaker endpoint...");
+  console.log("Invocazione dell'endpoint SageMaker...");
   const response = await sagemaker.send(command);
   const responseBody = Buffer.from(response.Body).toString();
   const predictions = JSON.parse(responseBody);
   
-  // Format the predictions into the desired structure
+  if (!Array.isArray(predictions)) {
+      throw new Error("Invalid response from SageMaker endpoint.");
+  }
+
+  // *** MODIFICA: Estrae solo la parola predetta (token_str) invece dell'intera sequenza. ***
+  const distractors = predictions
+    .map(p => p.token_str.trim())
+    .filter((word, index, self) => 
+        word && 
+        word.toLowerCase() !== originalWord.toLowerCase() && 
+        self.indexOf(word) === index
+    );
+
+  // Crea la lista finale di opzioni, includendo la risposta corretta e i distrattori
+  let options = [originalWord, ...distractors.slice(0, 3)];
+
+  // Mescola le opzioni
+  for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+  }
+  
   return {
     question: question,
-    options: predictions.map(p => p.sequence)
+    options: options,
+    answer: originalWord // La risposta corretta è la parola che abbiamo mascherato
   };
 }
 
@@ -107,59 +131,61 @@ export const handler = async (event) => {
     await mongo.connect();
     const db = mongo.db('unibg_tedx_2025');
     
-    // STEP 1: Fetch talk URL from the 'tedx_data_cleaned' collection
+    // STEP 1: Recupera l'URL del talk dalla collezione 'tedx_data_cleaned'
     const talksCollection = db.collection('tedx_data_cleaned');
-    console.log(`Searching for talk with ID: ${talk_id}`);
+    console.log(`Ricerca talk con ID: ${talk_id}`);
     const talkDocument = await talksCollection.findOne({ _id: talk_id });
 
     if (!talkDocument || !talkDocument.url) {
-      console.error(`Talk with ID ${talk_id} not found or has no URL.`);
+      console.error(`Talk con ID ${talk_id} non trovato o senza URL.`);
       return {
         statusCode: 404, // Not Found
-        body: JSON.stringify({ error: `Talk with ID ${talk_id} not found or does not have a URL.` }),
+        body: JSON.stringify({ error: `Talk con ID ${talk_id} non trovato o senza un URL.` }),
       };
     }
     
     const talk_url = talkDocument.url;
-    console.log(`Found URL: ${talk_url}`);
+    console.log(`URL trovato: ${talk_url}`);
 
-    // STEP 2: Fetch transcript using the retrieved URL
+    // STEP 2: Recupera la trascrizione usando l'URL trovato
     const transcript = await fetchTranscript(talk_url);
 
-    // STEP 3: Generate the exercise using SageMaker
+    // STEP 3: Genera l'esercizio usando SageMaker
     const exercise = await generateExercise(transcript);
     
-    // STEP 4: Save the generated exercise to the 'exercises' collection
+    // STEP 4: Salva l'esercizio generato nella collezione 'exercises'
     const exercisesCollection = db.collection('exercises');
+    // *** MODIFICA: Salva anche la risposta corretta e rimuove transcript_snippet. ***
     const result = await exercisesCollection.insertOne({
       talk_id,
-      talk_url, // Save the URL for reference
-      transcript_snippet: transcript, // Renamed for clarity
+      talk_url, // Salva l'URL per riferimento
       question: exercise.question,
       options: exercise.options,
+      answer: exercise.answer,
       created_at: new Date()
     });
-    console.log(`Exercise saved with ID: ${result.insertedId}`);
+    console.log(`Esercizio salvato con ID: ${result.insertedId}`);
 
-    // STEP 5: Return a successful response
+    // STEP 5: Restituisce una risposta di successo
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: "Exercise generated successfully",
+        message: "Esercizio generato con successo",
         exercise_id: result.insertedId,
         question: exercise.question,
         options: exercise.options
+        // La risposta corretta non viene inviata al client
       })
     };
 
   } catch (err) {
-    console.error("An error occurred:", err);
+    console.error("Si è verificato un errore:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message || "An internal server error occurred." })
+      body: JSON.stringify({ error: err.message || "Si è verificato un errore interno del server." })
     };
   } finally {
-    // Ensure the MongoDB connection is closed
+    // Assicura che la connessione a MongoDB venga chiusa
     await mongo.close();
   }
 };
