@@ -41,5 +41,5 @@ export default async function fetchTranscript(baseUrl) {
       throw new Error("Transcript content is empty or could not be found on the page.");
     }
   
-    return transcriptText;
+    return transcriptText.slice(0,8192);
   }
