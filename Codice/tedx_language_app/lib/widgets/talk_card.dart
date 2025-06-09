@@ -6,6 +6,14 @@ import 'package:html/parser.dart' as parser;
 import '../models/talk_model.dart';
 import '../screens/exercise_screen.dart';
 
+// Funzione helper per capitalizzare la prima lettera
+String _capitalizeFirstLetter(String text) {
+  if (text.isEmpty) {
+    return text;
+  }
+  return text[0].toUpperCase() + text.substring(1);
+}
+
 class TalkCard extends StatefulWidget {
   final Talk talk;
   const TalkCard({super.key, required this.talk});
@@ -42,12 +50,7 @@ class _TalkCardState extends State<TalkCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Ora puoi prendere il colore del testo direttamente dal textTheme del contesto
-    // È preferibile usare colorScheme.onSurface se vuoi un colore che si adatti
-    // al colore della superficie (come la Card)
-    final Color? titleColor = Theme.of(context).textTheme.titleLarge?.color; // Usa lo stile definito nel ThemeProvider
-    // Oppure potresti usare:
-    // final Color? titleColor = Theme.of(context).colorScheme.onSurface; // Questo si adatta alla superficie della Card
+    final Color? titleColor = Theme.of(context).textTheme.titleLarge?.color;
 
     return GestureDetector(
       onTap: () {
@@ -58,7 +61,7 @@ class _TalkCardState extends State<TalkCard> {
         );
       },
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         child: SingleChildScrollView(
           physics: const NeverScrollableScrollPhysics(),
@@ -95,14 +98,14 @@ class _TalkCardState extends State<TalkCard> {
                   children: [
                     Text(
                       widget.talk.speakers.toUpperCase(),
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      widget.talk.title,
-                      // --- MODIFICA CHIAVE QUI: USA IL COLORE DEL TESTO DAL TEMA ---
+                      // --- MODIFICA QUI: Capitalizza la prima lettera del titolo ---
+                      _capitalizeFirstLetter(widget.talk.title),
                       style: TextStyle(color: titleColor, fontWeight: FontWeight.bold, fontSize: 18),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

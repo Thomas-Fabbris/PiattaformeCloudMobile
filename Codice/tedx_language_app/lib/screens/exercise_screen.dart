@@ -231,13 +231,20 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       height: 250, // Altezza desiderata per la riga dei "Watch Next"
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        // Aggiungi un padding alla ListView per il margine iniziale a sinistra
+        padding: const EdgeInsets.symmetric(horizontal: 0), // Modifica: Rimosso padding orizzontale dal container
         itemCount: _watchNextTalks!.length,
         itemBuilder: (context, index) {
           final talk = _watchNextTalks![index];
           return Padding(
-            padding: const EdgeInsets.only(right: 16.0), // Spazio tra le card
+            // --- MODIFICA QUI: Regola il padding tra le card ---
+            padding: EdgeInsets.only(
+              right: (index == _watchNextTalks!.length - 1) ? 0 : 12.0, // Solo spazio tra le card, non alla fine
+              left: (index == 0) ? 16.0 : 0, // Margine a sinistra solo per la prima card
+            ),
             child: SizedBox(
-              width: 200, // Larghezza fissa per ogni TalkCard
+              // --- MODIFICA QUI: Aumenta la larghezza della card ---
+              width: 280, // Larghezza desiderata per ogni TalkCard (era 200)
               child: TalkCard(talk: talk),
             ),
           );

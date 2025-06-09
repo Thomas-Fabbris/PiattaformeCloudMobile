@@ -30,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
       );
     } else {
-      // Ottieni colori dal tema per la SnackBar di errore
       final Color snackBarBg = Theme.of(context).colorScheme.error;
       final Color snackBarText = Theme.of(context).colorScheme.onError;
 
@@ -45,16 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ottieni i colori dinamici dal tema
-    final Color primaryTextColor = Theme.of(context).textTheme.headlineMedium?.color ?? Colors.black; // Per il titolo "TEDx Language"
-    final Color secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54; // Per il sottotitolo e le icone/hintText
-    final Color inputTextColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black; // Per il testo digitato nell'input
-    final Color inputFillColor = Theme.of(context).inputDecorationTheme.fillColor ?? (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey[100]!); // Colore di riempimento per TextFormField
-    final Color inputHintColor = Theme.of(context).inputDecorationTheme.hintStyle?.color ?? secondaryTextColor; // Colore del hint
-    final Color inputPrefixIconColor = secondaryTextColor; // Colore delle icone all'interno dei TextFormField
+    // Ora usiamo i colori dal TextTheme direttamente, che dovrebbero essere correttamente impostati
+    final Color mainTitleColor = Theme.of(context).textTheme.headlineMedium?.color ?? Colors.black; // Per "TEDx Language"
+    final Color subtitleColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54; // Per il sottotitolo
 
+    // Per i campi di input, usiamo onSurface per i contenuti e inputDecorationTheme per hint/fill.
+    final Color inputContentColor = Theme.of(context).colorScheme.onSurface; // Testo digitato e icone
+    
     return Scaffold(
-      // Scaffold background color è già gestito dal ThemeProvider
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -79,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: primaryTextColor, // Colore dinamico
+                    color: mainTitleColor, // Colore dinamico dal TextTheme
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -88,51 +85,41 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: secondaryTextColor, // Colore dinamico
+                    color: subtitleColor, // Colore dinamico dal TextTheme
                   ),
                 ),
                 const SizedBox(height: 48.0),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(color: inputContentColor), // Testo digitato
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined, color: inputPrefixIconColor), // Colore dinamico
-                    // Colori di riempimento e bordo gestiti dal tema
-                    fillColor: inputFillColor,
-                    filled: true,
-                    border: Theme.of(context).inputDecorationTheme.border, // Prendi il bordo dal tema
-                    hintStyle: TextStyle(color: inputHintColor), // Colore dinamico per il hint
+                    prefixIcon: Icon(Icons.email_outlined, color: inputContentColor.withOpacity(0.7)), // Icona
+                    // hintStyle e fill/border verranno automaticamente da inputDecorationTheme nel ThemeProvider
                   ),
-                  style: TextStyle(color: inputTextColor), // Colore dinamico per il testo digitato
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  style: TextStyle(color: inputContentColor), // Testo digitato
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline, color: inputPrefixIconColor), // Colore dinamico
-                    // Colori di riempimento e bordo gestiti dal tema
-                    fillColor: inputFillColor,
-                    filled: true,
-                    border: Theme.of(context).inputDecorationTheme.border, // Prendi il bordo dal tema
-                    hintStyle: TextStyle(color: inputHintColor), // Colore dinamico per il hint
+                    prefixIcon: Icon(Icons.lock_outline, color: inputContentColor.withOpacity(0.7)), // Icona
+                    // hintStyle e fill/border verranno automaticamente da inputDecorationTheme nel ThemeProvider
                   ),
-                  style: TextStyle(color: inputTextColor), // Colore dinamico per il testo digitato
                 ),
                 const SizedBox(height: 32),
                 _isLoading
                     ? Center(
                         child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary, // Colore dinamico (rosso TEDx)
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       )
                     : ElevatedButton(
                         onPressed: _login,
-                        // Lo stile del bottone è già gestito globalmente dal ThemeProvider
-                        // child: const Text('ACCEDI', style: TextStyle(fontWeight: FontWeight.bold)), // Il colore del testo è gestito dal ThemeProvider
-                      child: const Text('ACCEDI', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: const Text('ACCEDI', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
               ],
             ),

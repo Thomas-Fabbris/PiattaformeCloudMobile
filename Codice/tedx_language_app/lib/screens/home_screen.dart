@@ -4,7 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/talk_provider.dart';
 import '../widgets/talk_card.dart';
-import '../widgets/custom_app_bar.dart'; // Assicurati che custom_app_bar gestisca i colori del tema
+import '../widgets/custom_app_bar.dart';
+
+// Funzione helper per capitalizzare la prima lettera di una stringa
+String _capitalizeFirstLetter(String text) {
+  if (text.isEmpty) {
+    return text;
+  }
+  // Se il testo è "Tutti", lo lasciamo così o lo gestiamo separatamente se non vuoi capitalizzarlo
+  // o se vuoi che sia completamente maiuscolo come era prima.
+  // Per ora, lo capitalizziamo come gli altri.
+  return text[0].toUpperCase() + text.substring(1);
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,14 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (tag == 'Tutti') {
       return 'all'; // Wildcard per "tutti"
     }
-    return tag.toLowerCase();
+    return tag.toLowerCase(); // L'API probabilmente si aspetta tag in minuscolo
   }
 
   // --- WIDGET DEI FILTRI MIGLIORATO ---
   Widget _buildFilterChips() {
-    // Ottieni il colore del testo per il titolo della sezione dal tema corrente
     final Color? sectionTitleColor = Theme.of(context).textTheme.headlineSmall?.color;
-    // Potresti anche usare Theme.of(context).colorScheme.onSurface per un colore che si adatta allo sfondo della superficie
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,14 +56,13 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text(
             "Esplora per Categoria",
             style: TextStyle(
-              // --- MODIFICA QUI: Usa il colore dinamico del tema ---
               color: sectionTitleColor,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        SizedBox( // Usiamo SizedBox invece di Container per una migliore flessibilità
+        SizedBox(
           height: 50,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -64,12 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
               final tag = _tags[index];
               final isSelected = tag == _selectedTag;
               
-              // Determina il colore del testo per i chip in base al tema e alla selezione
-              // Se il chip è selezionato, il testo è bianco (perché lo sfondo sarà rosso)
-              // Se non è selezionato, il testo deve adattarsi al tema (scuro in light, bianco in dark)
               final Color chipTextColor = isSelected 
                   ? Colors.white 
-                  : Theme.of(context).textTheme.bodyMedium!.color!; // Usa un colore di testo generico dal tema
+                  : Theme.of(context).textTheme.bodyMedium!.color!;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -87,18 +92,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     duration: const Duration(milliseconds: 300),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.red : Theme.of(context).cardColor, // Colore del chip non selezionato prende dal tema
+                      color: isSelected ? Colors.red : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected ? Colors.red : Theme.of(context).dividerColor, // Colore del bordo dinamico
+                        color: isSelected ? Colors.red : Theme.of(context).dividerColor,
                         width: 1.5,
                       )
                     ),
                     child: Center(
                       child: Text(
-                        tag,
+                        // --- MODIFICA QUI: Capitalizza la prima lettera del tag ---
+                        _capitalizeFirstLetter(tag), // Applica la funzione al testo del tag
                         style: TextStyle(
-                          color: chipTextColor, // Applica il colore dinamico del testo del chip
+                          color: chipTextColor,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -116,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'TEDx Language'), // L'AppBar dovrebbe già gestire il colore del titolo
+      appBar: CustomAppBar(title: 'TEDx Language'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -129,7 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (talkProvider.isLoading) {
                   return Center(
                     child: CircularProgressIndicator(
-                      // Colore del CircularProgressIndicator dinamico
                       color: Theme.of(context).colorScheme.primary, 
                     ),
                   );
@@ -142,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         'Impossibile caricare i talk.\nDettagli: ${talkProvider.error}', 
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color), // Colore errore dinamico
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
                       ),
                     ),
                   );
@@ -152,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(
                     child: Text(
                       'Nessun talk trovato.',
-                      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color), // Colore testo "nessun talk" dinamico
+                      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
                     ),
                   );
                 }

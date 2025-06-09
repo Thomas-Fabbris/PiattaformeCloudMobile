@@ -15,7 +15,6 @@ class ThemeProvider with ChangeNotifier {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
     
-    // Salva la preferenza
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', _isDarkMode);
   }
@@ -45,7 +44,7 @@ class ThemeProvider with ChangeNotifier {
       ),
     ),
     cardTheme: CardTheme(
-      color: Colors.white, // Sfondo chiaro per le card
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -57,21 +56,37 @@ class ThemeProvider with ChangeNotifier {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
+      hintStyle: TextStyle(color: Colors.grey[600]), // Dark grey hint for light theme
     ),
-    textTheme: const TextTheme( // Usiamo const TextTheme per coerenza
+    textTheme: const TextTheme( // Ensure these are dark for light theme
       titleLarge: TextStyle(color: Colors.black87),
-      headlineSmall: TextStyle(color: Colors.black87), // Aggiunto per home_screen
+      headlineMedium: TextStyle(color: Colors.black87), // For "TEDx Language" title
+      headlineSmall: TextStyle(color: Colors.black87),
       bodyLarge: TextStyle(color: Colors.black87),
-      bodyMedium: TextStyle(color: Colors.black54),
+      bodyMedium: TextStyle(color: Colors.black54), // For subtitles and general text
     ),
-    dividerColor: Colors.grey[300], // Colore per i divider nel tema chiaro
+    dividerColor: Colors.grey[300],
+    colorScheme: const ColorScheme.light(
+      primary: Colors.red,
+      onPrimary: Colors.white,
+      secondary: Colors.red,
+      onSecondary: Colors.white,
+      surface: Colors.white, // Surface color for cards, inputs, dialogs
+      onSurface: Colors.black87, // Text/icons on light surface (dark)
+      background: Colors.white,
+      onBackground: Colors.black87,
+      error: Colors.red,
+      onError: Colors.white,
+      secondaryContainer: Color(0xFFE0E0E0),
+      onSecondaryContainer: Colors.black87,
+    ),
   );
 
   ThemeData get darkTheme => ThemeData.dark().copyWith(
     primaryColor: Colors.red,
-    scaffoldBackgroundColor: const Color(0xFF121212), // Sfondo generale scuro
+    scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.black, // AppBar nera
+      backgroundColor: Colors.black,
       elevation: 0,
       foregroundColor: Colors.white,
     ),
@@ -94,18 +109,34 @@ class ThemeProvider with ChangeNotifier {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF1E1E1E),
+      fillColor: const Color(0xFF1E1E1E), // Input field dark grey
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
+      hintStyle: TextStyle(color: Colors.white60), // Light hint for dark theme
     ),
-    textTheme: const TextTheme( // Usiamo const TextTheme per coerenza
+    textTheme: const TextTheme( // Ensure these are WHITE for dark theme
       titleLarge: TextStyle(color: Colors.white),
-      headlineSmall: TextStyle(color: Colors.white), // Aggiunto per home_screen
+      headlineMedium: TextStyle(color: Colors.white), // For "TEDx Language" title
+      headlineSmall: TextStyle(color: Colors.white),
       bodyLarge: TextStyle(color: Colors.white70),
-      bodyMedium: TextStyle(color: Colors.white54),
+      bodyMedium: TextStyle(color: Colors.white54), // For subtitles and general text
     ),
-    dividerColor: Colors.grey[700], // Colore per i divider nel tema scuro
+    dividerColor: Colors.grey[700],
+    colorScheme: const ColorScheme.dark(
+      primary: Colors.red,
+      onPrimary: Colors.white,
+      secondary: Colors.red,
+      onSecondary: Colors.white,
+      surface: Colors.black, // Surface color for cards, inputs, dialogs (black)
+      onSurface: Colors.white, // Text/icons on dark surface (white)
+      background: Color(0xFF121212),
+      onBackground: Colors.white,
+      error: Colors.red,
+      onError: Colors.white,
+      secondaryContainer: Color(0xFF333333),
+      onSecondaryContainer: Colors.white70,
+    ),
   );
 }

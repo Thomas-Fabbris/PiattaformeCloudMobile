@@ -78,7 +78,8 @@ class TalkSearchDelegate extends SearchDelegate<Talk?> {
     }
     
     return FutureBuilder<List<Talk>>(
-      future: ApiService().getTalksByTag(query),
+      // --- MODIFICA CHIAVE QUI: Chiama getTalksByTitle ---
+      future: ApiService().getTalksByTitle(query), // Usa il nuovo metodo
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator(color: indicatorColor));
@@ -107,18 +108,18 @@ class TalkSearchDelegate extends SearchDelegate<Talk?> {
   // Mostra i suggerimenti mentre l'utente scrive
   @override
   Widget buildSuggestions(BuildContext context) {
-    final Color? iconColor = Theme.of(context).textTheme.bodyMedium?.color; // O un colore più chiaro/scuro a seconda del tema
+    final Color? iconColor = Theme.of(context).textTheme.bodyMedium?.color;
     final Color? suggestionTextColor = Theme.of(context).textTheme.bodyMedium?.color;
 
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 80, color: iconColor?.withOpacity(0.3) ?? Colors.white38), // Icona con opacità variabile
+          Icon(Icons.search, size: 80, color: iconColor?.withOpacity(0.3) ?? Colors.white38),
           const SizedBox(height: 16),
           Text(
-            "Cerca un talk per titolo...", 
-            style: TextStyle(color: suggestionTextColor, fontSize: 18) // Testo dinamico
+            "Cerca un talk per titolo...", // <--- TESTO AGGIORNATO (senza localizzazione)
+            style: TextStyle(color: suggestionTextColor, fontSize: 18)
           ),
         ],
       ),
