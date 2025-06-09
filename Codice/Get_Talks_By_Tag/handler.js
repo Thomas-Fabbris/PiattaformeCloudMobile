@@ -30,9 +30,18 @@ module.exports.get_by_tag = async (event, context, callback) => {
         await connect_to_db();
         console.log('=> get_all talks');
 
-        const talks = await talk.find({ tags: body.tag })
+        let talks;
+
+        if(body.tag != 'all') {
+            talks = await talk.find({ tags: body.tag })
             .skip((body.doc_per_page * body.page) - body.doc_per_page)
             .limit(body.doc_per_page);
+        }
+        else{
+            talks = await talk.find({})
+            .skip((body.doc_per_page * body.page) - body.doc_per_page)
+            .limit(body.doc_per_page); 
+        }
 
         const enrichedTalks = await Promise.all(talks.map(async t => {
             if (!t.comprehend_analysis && t.description) {
