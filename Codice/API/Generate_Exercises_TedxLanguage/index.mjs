@@ -1,86 +1,114 @@
-import { MongoClient } from 'mongodb';
+import {
+    MongoClient
+} from 'mongodb';
 import dotenv from 'dotenv';
-import { generateQuestions, maskQuestion, getFillMaskOptions } from "./questions.mjs"
+import {
+    generateQuestions,
+    maskQuestion,
+    getFillMaskOptions
+} from "./questions.mjs";
 import fetchTranscript from './transcript.mjs';
 
-dotenv.config({ path: './variables.env' });
+dotenv.config({
+    path: './variables.env'
+});
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 
-const mongo = new MongoClient(process.env.MONGO_URI);
+export const handler = async (event, context) => {
+    const {
+        talk_id
+    } = JSON.parse(event.body || '{}');
+    context.callbackWaitsForEmptyEventLoop = false;
 
-export const handler = async (event) => {
-  const { talk_id } = JSON.parse(event.body || '{}');
-
-  if (!talk_id) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: "talk_id is required." }),
-    };
-  }
-
-  try {
-    await mongo.connect();
-    
-    const db = mongo.db('unibg_tedx_2025');
-    const talksCollection = db.collection('tedx_data_cleaned');
-    console.log(`Searching for talk with ID: ${talk_id}`);
-    const talkDocument = await talksCollection.findOne({ _id: talk_id });
-
-    if (!talkDocument || !talkDocument.url) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: `Talk with ID ${talk_id} not found or has no URL.` }),
-      };
-    }
-    const talk_url = talkDocument.url;
-    console.log(`Found URL: ${talk_url}`);
-
-    const transcript = await fetchTranscript(talk_url);
-    if (!transcript || transcript.length < 20) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Fetched transcript is too short or missing." })
-      };
+    if (!talk_id) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({
+                error: "talk_id is required."
+            })
+        };
     }
 
-    const questionList = await generateQuestions(transcript);
-    if (!questionList.length) {
-      throw new Error("No questions were generated from the transcript.");
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db('unibg_tedx_2025');
+        const exercisesCollection = db.collection('exercises');
+
+        const existingExercises = await exercisesCollection.find({
+            talk_id: talk_id
+        }).toArray();
+        if (existingExercises.length > 0) {
+            console.log(`Trovati ${existingExercises.length} esercizi esistenti.`);
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    exercises: existingExercises
+                })
+            };
+        }
+
+        const talksCollection = db.collection('tedx_data_cleaned');
+        const talkDocument = await talksCollection.findOne({
+            _id: talk_id
+        });
+
+        if (!talkDocument || !talkDocument.url) {
+            throw new Error(`Talk with ID ${talk_id} not found or has no URL.`);
+        }
+
+        const transcript = await fetchTranscript(talkDocument.url);
+        if (!transcript || transcript.length < 20) {
+            throw new Error("Fetched transcript is too short or missing.");
+        }
+
+        const questionList = await generateQuestions(transcript);
+        if (!questionList.length) {
+            throw new Error("No questions were generated from the transcript.");
+        }
+
+        const exercisesToSave = await Promise.all(
+            questionList.map(async (question) => {
+                const masked = maskQuestion(question);
+                const options = await getFillMaskOptions(masked);
+                let correctAnswer = '';
+
+                for (const opt of options) {
+                    if (masked.replace('[MASK]', opt) === question) {
+                        correctAnswer = opt;
+                        break;
+                    }
+                }
+
+                return {
+                    talk_id,
+                    original_question: question,
+                    masked_question: masked,
+                    options: options,
+                    correctAnswer: correctAnswer,
+                    created_at: new Date()
+                };
+            })
+        );
+
+        if (exercisesToSave.length > 0) {
+            await exercisesCollection.insertMany(exercisesToSave);
+            console.log(`${exercisesToSave.length} esercizi salvati nel DB.`);
+        }
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                exercises: exercisesToSave
+            })
+        };
+
+    } catch (err) {
+        console.error("An error occurred:", err);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                error: err.message || "An internal server error occurred."
+            })
+        };
     }
-
-    const results = [];
-    const exercisesCollection = db.collection('exercises');
-
-    for (const question of questionList) {
-      const masked = maskQuestion(question);
-      const suggestions = await getFillMaskOptions(masked);
-
-      const doc = {
-        talk_id,
-        original_question: question,
-        masked_question: masked,
-        options: suggestions,
-        created_at: new Date()
-      };
-      
-      const res = await exercisesCollection.insertOne(doc);
-      results.push({ exercise_id: res.insertedId, masked_question: masked, options: suggestions });
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Exercises generated successfully",
-        count: results.length,
-        exercises: results
-      })
-    };
-  } catch (err) {
-    console.error("An error occurred:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message || "An internal server error occurred." })
-    };
-  } finally {
-    await mongo.close();
-  }
 };
