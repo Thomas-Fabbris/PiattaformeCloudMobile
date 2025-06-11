@@ -1,5 +1,5 @@
 // lib/screens/exercise_screen.dart
-// Versione completa e aggiornata
+// Versione completa e aggiornata con colori dinamici dal tema
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -42,13 +42,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   @override
   void initState() {
     super.initState();
-    // Inizializza tutto all'avvio dello schermo
     _initializeVideoPlayerFuture = _extractAndInitializeVideoPlayer();
     _fetchWatchNext();
     _exercisesFuture = ApiService().getOrGenerateExercises(widget.talk.id);
   }
-
-  // --- LOGICA DI CONTROLLO DEL QUIZ ---
 
   void _checkAnswer() {
     if (_selectedOption == null) return;
@@ -67,7 +64,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         _selectedOption = null;
         _answerChecked = false;
       } else {
-        // L'utente ha finito le domande, l'AnimatedSwitcher mostrerà i risultati
         _currentQuestionIndex++;
       }
     });
@@ -79,12 +75,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       _selectedOption = null;
       _answerChecked = false;
       _score = 0;
-      // Ricarica gli esercizi per un nuovo tentativo
       _exercisesFuture = ApiService().getOrGenerateExercises(widget.talk.id);
     });
   }
-
-  // --- LOGICA DI RETE E DI STATO ---
 
   Future<void> _extractAndInitializeVideoPlayer() async {
     try {
@@ -139,8 +132,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     super.dispose();
   }
 
-  // --- METODO BUILD PRINCIPALE ---
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,11 +177,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               children: [
                 const Icon(Icons.error_outline, color: Colors.amber, size: 48),
                 const SizedBox(height: 16),
-                const Text(
-                  "Impossibile caricare gli esercizi.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
-                ),
+                const Text("Impossibile caricare gli esercizi.", textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.refresh),
@@ -227,6 +214,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   Widget _buildQuestionWidget() {
     final exercise = _exercises[_currentQuestionIndex];
+    final theme = Theme.of(context); // Usiamo il tema per i colori
     
     return Column(
       key: ValueKey<int>(_currentQuestionIndex),
@@ -234,8 +222,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       children: [
         Text(
           'DOMANDA ${_currentQuestionIndex + 1} DI ${_exercises.length}',
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Colors.white70,
+          // FIX: Usa un colore dal tema, non fisso
+          style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
                 letterSpacing: 1.5,
               ),
         ),
@@ -245,35 +234,31 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           child: LinearProgressIndicator(
             value: (_currentQuestionIndex + 1) / _exercises.length,
             minHeight: 8,
-            backgroundColor: Colors.grey.shade800,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.red.shade400),
+            // FIX: Usa un colore di sfondo dal tema
+            backgroundColor: theme.colorScheme.surfaceVariant,
+            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
           ),
         ),
         const SizedBox(height: 24),
-
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor.withOpacity(0.5),
+            // FIX: Usa un colore solido dal tema, non con opacità che può creare problemi
+            color: theme.colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             exercise.masked_question.replaceAll('[MASK]', '______'),
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
+            style: theme.textTheme.headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w500, height: 1.4),
           ),
         ),
         const SizedBox(height: 24),
-
         ...exercise.options.map((option) {
           return _buildOptionButton(option, exercise.correctAnswer);
         }).toList(),
         const SizedBox(height: 24),
-        
-        // ULTIMA MODIFICA: EVIDENZIA LA RISPOSTA CORRETTA
         if (_answerChecked)
           Padding(
             padding: const EdgeInsets.only(bottom: 24.0),
@@ -299,7 +284,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   return Text(
                     'Frase completa: "${exercise.original_question}"',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic, height: 1.5),
+                    // FIX: Usa colore dal tema
+                    style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7), fontStyle: FontStyle.italic, height: 1.5),
                   );
                 }
 
@@ -310,7 +296,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 return RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic, height: 1.5, fontSize: 15),
+                    // FIX: Usa colore dal tema
+                    style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7), fontStyle: FontStyle.italic, height: 1.5, fontSize: 15),
                     children: [
                       const TextSpan(text: 'Frase completa: "'),
                       TextSpan(text: part1),
@@ -323,7 +310,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               }),
             ),
           ),
-          
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -345,11 +331,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   Widget _buildOptionButton(String option, String correctAnswer) {
+    final theme = Theme.of(context);
     final isSelected = _selectedOption == option;
-    Color backgroundColor = Theme.of(context).cardColor;
-    Color borderColor = Colors.white24;
+
+    Color backgroundColor = theme.cardColor;
+    // FIX: Usa un colore per il bordo che si adatti al tema
+    Color borderColor = theme.colorScheme.onSurface.withOpacity(0.2);
     Widget? icon;
 
+    // La logica per i colori semantici (verde/rosso) è corretta e può rimanere
     if (_answerChecked) {
       if (option == correctAnswer) {
         backgroundColor = Colors.green.withOpacity(0.3);
@@ -361,8 +351,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         icon = const Icon(Icons.cancel, color: Colors.red);
       }
     } else if (isSelected) {
-      backgroundColor = Colors.red.withOpacity(0.2);
-      borderColor = Colors.red;
+      backgroundColor = theme.colorScheme.primary.withOpacity(0.2);
+      borderColor = theme.colorScheme.primary;
     }
 
     return Padding(
@@ -381,7 +371,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             Expanded(
               child: Text(
                 option,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+                // FIX: IL CAMBIAMENTO PIÙ IMPORTANTE! Usa il colore del testo principale del tema.
+                style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
               ),
             ),
             if (icon != null) const SizedBox(width: 12),
@@ -393,6 +384,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   Widget _buildResultsWidget() {
+    final theme = Theme.of(context);
     final double scoreRatio = _exercises.isEmpty ? 0 : _score / _exercises.length;
     String message;
     IconData resultIcon;
@@ -409,14 +401,16 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     } else {
       message = "Continua a provare! La prossima volta andrà meglio.";
       resultIcon = Icons.school;
-      iconColor = Colors.white70;
+      // FIX: Usa un colore che funzioni su entrambi i temi
+      iconColor = theme.colorScheme.onSurface.withOpacity(0.7);
     }
 
     return Container(
       key: const ValueKey<String>('results'),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor.withOpacity(0.5),
+        // FIX: Usa un colore di sfondo che si distingua leggermente
+        color: theme.colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -427,24 +421,25 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           Text(
             'Quiz Completato!',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white70),
+            // FIX: Usa colore dal tema
+            style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
           ),
           const SizedBox(height: 32),
           Text(
             'Il tuo punteggio',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
+            style: theme.textTheme.titleMedium,
           ),
           Text(
             '$_score / ${_exercises.length}',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+            style: theme.textTheme.displayMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: iconColor,
                 ),
@@ -464,6 +459,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   Widget _buildVideoPlayer() {
+    final theme = Theme.of(context);
     return FutureBuilder<void>(
       future: _initializeVideoPlayerFuture,
       builder: (context, snapshot) {
@@ -473,10 +469,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)),
+              child: Center(child: CircularProgressIndicator(color: theme.colorScheme.primary)),
             ),
           );
         }
@@ -486,10 +482,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Center(child: Text('Errore nel caricamento del video.', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white))),
+              child: Center(child: Text('Errore nel caricamento del video.', style: TextStyle(color: theme.textTheme.bodyLarge?.color))),
             ),
           );
         }
@@ -530,10 +526,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   Widget _buildWatchNextSection() {
+    final theme = Theme.of(context);
     if (_isLoadingWatchNext) {
       return Center(
         child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.primary,
+          color: theme.colorScheme.primary,
         ),
       );
     }
@@ -541,7 +538,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       return Center(
         child: Text(
           'Nessun talk correlato trovato.',
-          style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+          style: TextStyle(color: theme.textTheme.bodyMedium?.color),
         ),
       );
     }
