@@ -36,7 +36,6 @@ L’obiettivo è proporre un nuovo approccio all’apprendimento linguistico, un
 - ✅ Sviluppare un'app mobile Flutter cross-platform
 - ✅ Collegare contenuti audio/video da fonti certificate (es. TEDx)
 - ✅ Implementare traduzioni, trascrizioni e quiz interattivi
-- ✅ Salvare i progressi utente via **Cloud Firestore**
 - ✅ Offrire suggerimenti personalizzati tramite moduli AI/ML cloud-based
 
 ---
@@ -46,23 +45,20 @@ L’obiettivo è proporre un nuovo approccio all’apprendimento linguistico, un
 - 📚 Lezioni modulari basate su talk reali
 - 🔊 Audio + trascrizione bilingue interattiva
 - 🧠 Quiz e test lessicali a difficoltà crescente
-- ☁️ Cloud sync dei progressi utente
 - 🎯 Obiettivi giornalieri personalizzati
-- 🔐 Login sicuro via Firebase Auth
 
 ---
 
 ## 🔧 Architettura del Sistema
 
-LinguaX è strutturata secondo un’architettura moderna cloud-native:
+TedxLanguage è strutturata secondo un’architettura moderna cloud-native:
 
 - 📱 **Client mobile** sviluppato in Flutter
-- 🔐 **Firebase Authentication** per la gestione sicura degli accessi
 - 🗃️ **Cloud Firestore** per la memorizzazione dei dati utente e delle lezioni
 - ☁️ **Amazon AWS** per:
   - Hosting e streaming dei contenuti TEDx
   - Servizi di traduzione, trascrizione e suggerimenti AI
-- 🧠 **MongoDB** opzionale per caching e profili estesi
+- 🧠 **MongoDB** 
 
   
 📌 Di seguito il diagramma architetturale:
