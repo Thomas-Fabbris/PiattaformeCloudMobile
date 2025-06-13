@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider with ChangeNotifier {
   bool _isDarkMode = true;
-  
+
   bool get isDarkMode => _isDarkMode;
 
   ThemeProvider() {
@@ -14,7 +14,7 @@ class ThemeProvider with ChangeNotifier {
   void toggleTheme() async {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', _isDarkMode);
   }
@@ -37,17 +37,13 @@ class ThemeProvider with ChangeNotifier {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.red,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -56,14 +52,14 @@ class ThemeProvider with ChangeNotifier {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
-      hintStyle: TextStyle(color: Colors.grey[600]), // Dark grey hint for light theme
+      hintStyle: TextStyle(color: Colors.grey[600]),
     ),
-    textTheme: const TextTheme( // Ensure these are dark for light theme
+    textTheme: const TextTheme(
       titleLarge: TextStyle(color: Colors.black87),
-      headlineMedium: TextStyle(color: Colors.black87), // For "TEDx Language" title
+      headlineMedium: TextStyle(color: Colors.black87),
       headlineSmall: TextStyle(color: Colors.black87),
       bodyLarge: TextStyle(color: Colors.black87),
-      bodyMedium: TextStyle(color: Colors.black54), // For subtitles and general text
+      bodyMedium: TextStyle(color: Colors.black54),
     ),
     dividerColor: Colors.grey[300],
     colorScheme: const ColorScheme.light(
@@ -71,8 +67,8 @@ class ThemeProvider with ChangeNotifier {
       onPrimary: Colors.white,
       secondary: Colors.red,
       onSecondary: Colors.white,
-      surface: Colors.white, // Surface color for cards, inputs, dialogs
-      onSurface: Colors.black87, // Text/icons on light surface (dark)
+      surface: Colors.white,
+      onSurface: Colors.black87,
       background: Colors.white,
       onBackground: Colors.black87,
       error: Colors.red,
@@ -94,34 +90,29 @@ class ThemeProvider with ChangeNotifier {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.red,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
     ),
-    cardTheme: CardTheme(
-      // --- MODIFICA CHIAVE QUI: COLORE NERO PER LA CARD NEL TEMA SCURO ---
-      color: Colors.black, // Imposta le card su nero
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    cardTheme: CardThemeData(
+      color: Colors.black,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF1E1E1E), // Input field dark grey
+      fillColor: const Color(0xFF1E1E1E),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
-      hintStyle: TextStyle(color: Colors.white60), // Light hint for dark theme
+      hintStyle: TextStyle(color: Colors.white60),
     ),
-    textTheme: const TextTheme( // Ensure these are WHITE for dark theme
+    textTheme: const TextTheme(
       titleLarge: TextStyle(color: Colors.white),
-      headlineMedium: TextStyle(color: Colors.white), // For "TEDx Language" title
+      headlineMedium: TextStyle(color: Colors.white),
       headlineSmall: TextStyle(color: Colors.white),
       bodyLarge: TextStyle(color: Colors.white70),
-      bodyMedium: TextStyle(color: Colors.white54), // For subtitles and general text
+      bodyMedium: TextStyle(color: Colors.white54),
     ),
     dividerColor: Colors.grey[700],
     colorScheme: const ColorScheme.dark(
@@ -129,8 +120,8 @@ class ThemeProvider with ChangeNotifier {
       onPrimary: Colors.white,
       secondary: Colors.red,
       onSecondary: Colors.white,
-      surface: Colors.black, // Surface color for cards, inputs, dialogs (black)
-      onSurface: Colors.white, // Text/icons on dark surface (white)
+      surface: Colors.black,
+      onSurface: Colors.white,
       background: Color(0xFF121212),
       onBackground: Colors.white,
       error: Colors.red,

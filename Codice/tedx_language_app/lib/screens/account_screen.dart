@@ -28,7 +28,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Future<void> _loadUserInfo() async {
     final email = await _cognitoService.getCurrentUserEmail();
     final name = await _cognitoService.getCurrentUserName();
-    
+
     if (mounted) {
       setState(() {
         _userEmail = email;
@@ -39,36 +39,48 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Future<void> _logout() async {
-    // Ottieni i colori del tema per il AlertDialog
     final Color dialogBgColor = Theme.of(context).cardColor;
-    final Color dialogTitleColor = Theme.of(context).textTheme.titleLarge?.color ?? Colors.black;
-    final Color dialogContentColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54;
-    final Color dialogButtonColor = Theme.of(context).colorScheme.primary; // Per il bottone "Logout"
+    final Color dialogTitleColor =
+        Theme.of(context).textTheme.titleLarge?.color ?? Colors.black;
+    final Color dialogContentColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54;
+    final Color dialogButtonColor = Theme.of(context).colorScheme.primary;
 
-    // Mostra dialog di conferma
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: dialogBgColor, // Sfondo dinamico
-        title: Text('Conferma Logout', style: TextStyle(color: dialogTitleColor)), // Titolo dinamico
-        content: Text('Sei sicuro di voler uscire dall\'app?', style: TextStyle(color: dialogContentColor)), // Contenuto dinamico
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Annulla', style: TextStyle(color: dialogContentColor)), // Colore testo "Annulla"
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: dialogBgColor,
+            title: Text(
+              'Conferma Logout',
+              style: TextStyle(color: dialogTitleColor),
+            ),
+            content: Text(
+              'Sei sicuro di voler uscire dall\'app?',
+              style: TextStyle(color: dialogContentColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Annulla',
+                  style: TextStyle(color: dialogContentColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Logout',
+                  style: TextStyle(color: dialogButtonColor),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('Logout', style: TextStyle(color: dialogButtonColor)), // Rosso TEDx
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
       final success = await _cognitoService.signOut();
       if (success && mounted) {
-        // Naviga alla schermata di login
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
@@ -76,7 +88,10 @@ class _AccountScreenState extends State<AccountScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Errore durante il logout', style: TextStyle(color: Theme.of(context).colorScheme.onError)),
+            content: Text(
+              'Errore durante il logout',
+              style: TextStyle(color: Theme.of(context).colorScheme.onError),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -87,8 +102,13 @@ class _AccountScreenState extends State<AccountScreen> {
   void _showNotImplemented(String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$feature: funzione non ancora disponibile', style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer, // Un colore più neutro per i messaggi informativi
+        content: Text(
+          '$feature: funzione non ancora disponibile',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSecondaryContainer,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       ),
     );
   }
@@ -96,10 +116,11 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    // Ottieni i colori dinamici dal tema
-    final Color cardBackgroundColor = Theme.of(context).cardColor; // Nero in dark, bianco in light
-    final Color primaryTextColor = Theme.of(context).textTheme.titleLarge?.color ?? Colors.black; // Scuro in light, bianco in dark
-    final Color secondaryTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54; // Grigio scuro in light, grigio chiaro in dark
+    final Color cardBackgroundColor = Theme.of(context).cardColor;
+    final Color primaryTextColor =
+        Theme.of(context).textTheme.titleLarge?.color ?? Colors.black;
+    final Color secondaryTextColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54;
 
     return Scaffold(
       appBar: const CustomAppBar(title: 'Account'),
@@ -108,24 +129,20 @@ class _AccountScreenState extends State<AccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header con logo e info utente
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                // --- MODIFICA QUI: Sfondo della card dinamico ---
                 color: cardBackgroundColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  // Logo TEDx Language
-                  SizedBox( // Usiamo SizedBox invece di Container per l'immagine
+                  SizedBox(
                     width: 60,
                     height: 60,
                     child: Image.asset(
                       'assets/images/logo4.1-2.png',
                       fit: BoxFit.contain,
-                      // Potresti aggiungere un colorBlendMode o color se il logo avesse bisogno di adattarsi al tema
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -136,7 +153,6 @@ class _AccountScreenState extends State<AccountScreen> {
                         Text(
                           _isLoading ? 'Caricamento...' : _userName ?? 'Utente',
                           style: TextStyle(
-                            // --- MODIFICA QUI: Colore del testo dinamico ---
                             color: primaryTextColor,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -144,9 +160,10 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _isLoading ? 'Caricamento...' : _userEmail ?? 'Email non disponibile',
+                          _isLoading
+                              ? 'Caricamento...'
+                              : _userEmail ?? 'Email non disponibile',
                           style: TextStyle(
-                            // --- MODIFICA QUI: Colore del testo dinamico ---
                             color: secondaryTextColor,
                             fontSize: 14,
                           ),
@@ -158,9 +175,13 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
-            // Opzioni del menu
-            _buildThemeToggle(themeProvider, cardBackgroundColor, primaryTextColor, secondaryTextColor),
+
+            _buildThemeToggle(
+              themeProvider,
+              cardBackgroundColor,
+              primaryTextColor,
+              secondaryTextColor,
+            ),
             _buildMenuItem(
               icon: Icons.settings_outlined,
               title: 'Impostazioni',
@@ -186,25 +207,13 @@ class _AccountScreenState extends State<AccountScreen> {
               secondaryTextColor: secondaryTextColor,
             ),
             const Spacer(),
-            
-            // Pulsante logout (usa lo stile predefinito dell'elevatedButtonTheme)
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _logout,
-                // Lo stile del bottone è già gestito globalmente dal ThemeProvider
-                // style: ElevatedButton.styleFrom(
-                //   backgroundColor: Colors.red,
-                //   padding: const EdgeInsets.symmetric(vertical: 12),
-                // ),
-                child: const Text(
-                  'LOGOUT',
-                  // Il colore del testo è gestito dal ThemeProvider
-                  // style: TextStyle(
-                  //   color: Colors.white,
-                  //   fontWeight: FontWeight.bold,
-                  // ),
-                ),
+
+                child: const Text('LOGOUT'),
               ),
             ),
           ],
@@ -224,7 +233,6 @@ class _AccountScreenState extends State<AccountScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          // --- MODIFICA QUI: Sfondo della card dinamico ---
           color: cardBackgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -232,25 +240,21 @@ class _AccountScreenState extends State<AccountScreen> {
           children: [
             Icon(
               themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-              // --- MODIFICA QUI: Colore dell'icona dinamico ---
-              color: secondaryTextColor, // Le icone sono grigie/chiare
+
+              color: secondaryTextColor,
             ),
             const SizedBox(width: 16),
             Text(
               'Tema scuro',
-              style: TextStyle(
-                // --- MODIFICA QUI: Colore del testo dinamico ---
-                color: primaryTextColor,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: primaryTextColor, fontSize: 16),
             ),
             const Spacer(),
             Switch(
               value: themeProvider.isDarkMode,
               onChanged: (value) => themeProvider.toggleTheme(),
-              activeColor: Colors.red, // Il colore attivo rimane rosso TEDx
-              inactiveThumbColor: secondaryTextColor, // Il pollice inattivo si adatta al tema
-              inactiveTrackColor: secondaryTextColor.withOpacity(0.3), // La traccia inattiva si adatta al tema
+              activeColor: Colors.red,
+              inactiveThumbColor: secondaryTextColor,
+              inactiveTrackColor: secondaryTextColor.withOpacity(0.3),
             ),
           ],
         ),
@@ -262,7 +266,6 @@ class _AccountScreenState extends State<AccountScreen> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    // Passa i colori dinamici come parametri
     required Color cardBackgroundColor,
     required Color primaryTextColor,
     required Color secondaryTextColor,
@@ -275,26 +278,21 @@ class _AccountScreenState extends State<AccountScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            // --- MODIFICA QUI: Sfondo della card dinamico ---
             color: cardBackgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             children: [
-              Icon(icon, color: secondaryTextColor), // Colore dell'icona dinamico
+              Icon(icon, color: secondaryTextColor),
               const SizedBox(width: 16),
               Text(
                 title,
-                style: TextStyle(
-                  // --- MODIFICA QUI: Colore del testo dinamico ---
-                  color: primaryTextColor,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: primaryTextColor, fontSize: 16),
               ),
               const Spacer(),
               Icon(
                 Icons.arrow_forward_ios,
-                color: secondaryTextColor, // Colore dell'icona dinamico
+                color: secondaryTextColor,
                 size: 16,
               ),
             ],

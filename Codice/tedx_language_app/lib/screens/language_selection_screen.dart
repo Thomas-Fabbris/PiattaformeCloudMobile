@@ -7,11 +7,12 @@ class LanguageSelectionScreen extends StatefulWidget {
   const LanguageSelectionScreen({super.key});
 
   @override
-  State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
+  State<LanguageSelectionScreen> createState() =>
+      _LanguageSelectionScreenState();
 }
 
 class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
-  String _selectedLanguage = 'Italiano'; // Lingua di default, puoi renderla persistente con SharedPreferences
+  String _selectedLanguage = 'Italiano';
 
   final List<Map<String, String>> _languages = [
     {'name': 'Italiano', 'code': 'it', 'flag': '🇮🇹'},
@@ -26,11 +27,11 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ottieni i colori del testo dal tema corrente
-    final Color? titleColor = Theme.of(context).textTheme.headlineSmall?.color; // Per "Scegli la tua lingua..."
-    final Color? subtitleColor = Theme.of(context).textTheme.bodyMedium?.color; // Per "Questa impostazione..."
-    final Color? unselectedCardColor = Theme.of(context).cardColor; // Colore delle card non selezionate
-    final Color? unselectedTextColor = Theme.of(context).textTheme.bodyLarge?.color; // Colore del testo delle card non selezionate
+    final Color? titleColor = Theme.of(context).textTheme.headlineSmall?.color;
+    final Color? subtitleColor = Theme.of(context).textTheme.bodyMedium?.color;
+    final Color? unselectedCardColor = Theme.of(context).cardColor;
+    final Color? unselectedTextColor =
+        Theme.of(context).textTheme.bodyLarge?.color;
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Selezione Lingua'),
@@ -42,7 +43,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             Text(
               'Scegli la tua lingua preferita',
               style: TextStyle(
-                color: titleColor, // Colore dinamico
+                color: titleColor,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -50,20 +51,17 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             const SizedBox(height: 8),
             Text(
               'Questa impostazione influenzerà l\'interfaccia dell\'app',
-              style: TextStyle(
-                color: subtitleColor, // Colore dinamico
-                fontSize: 14,
-              ),
+              style: TextStyle(color: subtitleColor, fontSize: 14),
             ),
             const SizedBox(height: 24),
-            
+
             Expanded(
               child: ListView.builder(
                 itemCount: _languages.length,
                 itemBuilder: (context, index) {
                   final language = _languages[index];
                   final isSelected = language['name'] == _selectedLanguage;
-                  
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     child: InkWell(
@@ -78,11 +76,10 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          // --- MODIFICA 1: Sfondo rosso pieno per la selezione ---
-                          color: isSelected ? Colors.red : unselectedCardColor, // Dinamico
+                          color: isSelected ? Colors.red : unselectedCardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? Colors.red : Colors.transparent, // Bordo rosso se selezionato
+                            color: isSelected ? Colors.red : Colors.transparent,
                             width: 2,
                           ),
                         ),
@@ -90,24 +87,29 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                           children: [
                             Text(
                               language['flag']!,
-                              style: const TextStyle(fontSize: 24), // Le emoji bandiera hanno colore fisso
+                              style: const TextStyle(fontSize: 24),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 language['name']!,
                                 style: TextStyle(
-                                  // --- MODIFICA 2: Colore del testo dinamico ---
-                                  color: isSelected ? Colors.white : unselectedTextColor, // Bianco se selezionato, dinamico altrimenti
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : unselectedTextColor,
                                   fontSize: 16,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                 ),
                               ),
                             ),
                             if (isSelected)
                               const Icon(
                                 Icons.check_circle,
-                                color: Colors.white, // L'icona diventa bianca su sfondo rosso
+                                color: Colors.white,
                               ),
                           ],
                         ),
@@ -117,8 +119,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 },
               ),
             ),
-            
-            // Pulsante di conferma (usa il tema elevato del bottone)
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -130,19 +131,8 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                     ),
                   );
                 },
-                // Usa lo stile predefinito dell'elevatedButtonTheme del tema
-                // style: ElevatedButton.styleFrom(
-                //   backgroundColor: Colors.red,
-                //   padding: const EdgeInsets.symmetric(vertical: 12),
-                // ),
-                child: const Text(
-                  'CONFERMA',
-                  // Il colore del testo del bottone elevato è già definito nel tema come white
-                  // style: TextStyle(
-                  //   color: Colors.white,
-                  //   fontWeight: FontWeight.bold,
-                  // ),
-                ),
+
+                child: const Text('CONFERMA'),
               ),
             ),
           ],
@@ -153,6 +143,5 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   void _changeLanguage(String languageCode) {
     print('Changing language to: $languageCode');
-    // Implementa qui la logica di localizzazione (es. con un provider o un pacchetto di localizzazione)
   }
 }

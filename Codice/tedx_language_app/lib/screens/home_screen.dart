@@ -6,14 +6,11 @@ import '../providers/talk_provider.dart';
 import '../widgets/talk_card.dart';
 import '../widgets/custom_app_bar.dart';
 
-// Funzione helper per capitalizzare la prima lettera di una stringa
 String _capitalizeFirstLetter(String text) {
   if (text.isEmpty) {
     return text;
   }
-  // Se il testo è "Tutti", lo lasciamo così o lo gestiamo separatamente se non vuoi capitalizzarlo
-  // o se vuoi che sia completamente maiuscolo come era prima.
-  // Per ora, lo capitalizziamo come gli altri.
+
   return text[0].toUpperCase() + text.substring(1);
 }
 
@@ -25,28 +22,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> _tags = ['Tutti', 'technology', 'science', 'creativity', 'design', 'business'];
+  final List<String> _tags = [
+    'Tutti',
+    'technology',
+    'science',
+    'creativity',
+    'design',
+    'business',
+  ];
   String _selectedTag = 'Tutti';
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-      Provider.of<TalkProvider>(context, listen: false).fetchTalks(_getFilterValue(_selectedTag))
+    Future.microtask(
+      () => Provider.of<TalkProvider>(
+        context,
+        listen: false,
+      ).fetchTalks(_getFilterValue(_selectedTag)),
     );
   }
 
-  // Metodo helper per convertire il tag selezionato nel valore del filtro
   String _getFilterValue(String tag) {
     if (tag == 'Tutti') {
-      return 'all'; // Wildcard per "tutti"
+      return 'all';
     }
-    return tag.toLowerCase(); // L'API probabilmente si aspetta tag in minuscolo
+    return tag.toLowerCase();
   }
 
-  // --- WIDGET DEI FILTRI MIGLIORATO ---
   Widget _buildFilterChips() {
-    final Color? sectionTitleColor = Theme.of(context).textTheme.headlineSmall?.color;
+    final Color? sectionTitleColor =
+        Theme.of(context).textTheme.headlineSmall?.color;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,10 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context, index) {
               final tag = _tags[index];
               final isSelected = tag == _selectedTag;
-              
-              final Color chipTextColor = isSelected 
-                  ? Colors.white 
-                  : Theme.of(context).textTheme.bodyMedium!.color!;
+
+              final Color chipTextColor =
+                  isSelected
+                      ? Colors.white
+                      : Theme.of(context).textTheme.bodyMedium!.color!;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -84,28 +91,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() {
                         _selectedTag = tag;
                       });
-                      Provider.of<TalkProvider>(context, listen: false).fetchTalks(_getFilterValue(_selectedTag));
+                      Provider.of<TalkProvider>(
+                        context,
+                        listen: false,
+                      ).fetchTalks(_getFilterValue(_selectedTag));
                     }
                   },
                   borderRadius: BorderRadius.circular(20),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.red : Theme.of(context).cardColor,
+                      color:
+                          isSelected ? Colors.red : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected ? Colors.red : Theme.of(context).dividerColor,
+                        color:
+                            isSelected
+                                ? Colors.red
+                                : Theme.of(context).dividerColor,
                         width: 1.5,
-                      )
+                      ),
                     ),
                     child: Center(
                       child: Text(
-                        // --- MODIFICA QUI: Capitalizza la prima lettera del tag ---
-                        _capitalizeFirstLetter(tag), // Applica la funzione al testo del tag
+                        _capitalizeFirstLetter(tag),
                         style: TextStyle(
                           color: chipTextColor,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -128,44 +145,50 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildFilterChips(),
           const SizedBox(height: 10),
-          
+
           Expanded(
             child: Consumer<TalkProvider>(
               builder: (context, talkProvider, child) {
                 if (talkProvider.isLoading) {
                   return Center(
                     child: CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.primary, 
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   );
                 }
-            
+
                 if (talkProvider.error != null) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        'Impossibile caricare i talk.\nDettagli: ${talkProvider.error}', 
+                        'Impossibile caricare i talk.\nDettagli: ${talkProvider.error}',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
                       ),
                     ),
                   );
                 }
-            
+
                 if (talkProvider.talks.isEmpty) {
                   return Center(
                     child: Text(
                       'Nessun talk trovato.',
-                      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                      ),
                     ),
                   );
                 }
-                
+
                 return ListView.builder(
                   padding: const EdgeInsets.only(top: 10),
                   itemCount: talkProvider.talks.length,
-                  itemBuilder: (context, index) => TalkCard(talk: talkProvider.talks[index]),
+                  itemBuilder:
+                      (context, index) =>
+                          TalkCard(talk: talkProvider.talks[index]),
                 );
               },
             ),

@@ -1,7 +1,5 @@
 // lib/models/talk_model.dart
 
-import 'package:flutter/foundation.dart';
-
 class Talk {
   final String id;
   final String title;

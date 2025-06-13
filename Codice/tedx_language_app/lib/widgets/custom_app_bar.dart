@@ -1,16 +1,16 @@
 // lib/widgets/custom_app_bar.dart
 
 import 'package:flutter/material.dart';
-import '../screens/talk_search_delegate.dart'; // <-- IMPORTIAMO IL NUOVO FILE
+import '../screens/talk_search_delegate.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showSearchAction;
 
   const CustomAppBar({
-    super.key, 
+    super.key,
     required this.title,
-    this.showSearchAction = true, // Di default è visibile
+    this.showSearchAction = true,
   });
 
   @override
@@ -40,10 +40,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (showSearchAction)
           IconButton(
             onPressed: () {
-              showSearch(
-                context: context,
-                delegate: TalkSearchDelegate(),
-              );
+              showSearch(context: context, delegate: TalkSearchDelegate());
             },
             icon: const Icon(Icons.search),
           ),

@@ -35,7 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Login fallito. Controlla le credenziali.', style: TextStyle(color: snackBarText)),
+          content: Text(
+            'Login fallito. Controlla le credenziali.',
+            style: TextStyle(color: snackBarText),
+          ),
           backgroundColor: snackBarBg,
         ),
       );
@@ -44,13 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ora usiamo i colori dal TextTheme direttamente, che dovrebbero essere correttamente impostati
-    final Color mainTitleColor = Theme.of(context).textTheme.headlineMedium?.color ?? Colors.black; // Per "TEDx Language"
-    final Color subtitleColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54; // Per il sottotitolo
+    final Color mainTitleColor =
+        Theme.of(context).textTheme.headlineMedium?.color ?? Colors.black;
+    final Color subtitleColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54;
+    final Color inputContentColor = Theme.of(context).colorScheme.onSurface;
 
-    // Per i campi di input, usiamo onSurface per i contenuti e inputDecorationTheme per hint/fill.
-    final Color inputContentColor = Theme.of(context).colorScheme.onSurface; // Testo digitato e icone
-    
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -60,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                // Logo TEDx Language
                 Container(
                   width: 120,
                   height: 120,
@@ -76,51 +77,55 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: mainTitleColor, // Colore dinamico dal TextTheme
+                    color: mainTitleColor,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Impara le lingue, una grande idea alla volta.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: subtitleColor, // Colore dinamico dal TextTheme
-                  ),
+                  style: TextStyle(fontSize: 16, color: subtitleColor),
                 ),
                 const SizedBox(height: 48.0),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(color: inputContentColor), // Testo digitato
+                  style: TextStyle(color: inputContentColor),
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined, color: inputContentColor.withOpacity(0.7)), // Icona
-                    // hintStyle e fill/border verranno automaticamente da inputDecorationTheme nel ThemeProvider
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: inputContentColor.withOpacity(0.7),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  style: TextStyle(color: inputContentColor), // Testo digitato
+                  style: TextStyle(color: inputContentColor),
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline, color: inputContentColor.withOpacity(0.7)), // Icona
-                    // hintStyle e fill/border verranno automaticamente da inputDecorationTheme nel ThemeProvider
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: inputContentColor.withOpacity(0.7),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
                 _isLoading
                     ? Center(
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      )
-                    : ElevatedButton(
-                        onPressed: _login,
-                        child: const Text('ACCEDI', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
                       ),
+                    )
+                    : ElevatedButton(
+                      onPressed: _login,
+                      child: const Text(
+                        'ACCEDI',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
               ],
             ),
           ),

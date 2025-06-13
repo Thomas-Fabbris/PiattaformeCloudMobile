@@ -6,7 +6,6 @@ import 'package:html/parser.dart' as parser;
 import '../models/talk_model.dart';
 import '../screens/exercise_screen.dart';
 
-// Funzione helper per capitalizzare la prima lettera
 String _capitalizeFirstLetter(String text) {
   if (text.isEmpty) {
     return text;
@@ -104,7 +103,6 @@ class _TalkCardState extends State<TalkCard> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      // --- MODIFICA QUI: Capitalizza la prima lettera del titolo ---
                       _capitalizeFirstLetter(widget.talk.title),
                       style: TextStyle(color: titleColor, fontWeight: FontWeight.bold, fontSize: 18),
                       maxLines: 2,
